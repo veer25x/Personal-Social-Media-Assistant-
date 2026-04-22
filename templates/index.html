@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Content Generator</h1>
+        <p class="text-gray-600 mt-2">Create engaging social media content with AI</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Content Generation Form -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover transition">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="ri-magic-line text-purple-600 mr-2"></i>
+                Generate Post
+            </h2>
+            
+            <form id="generateForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Topic / Subject *</label>
+                    <input type="text" id="topic" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           placeholder="e.g., Artificial Intelligence in Marketing">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+                        <select id="platform" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="twitter">Twitter (X)</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="instagram">Instagram</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                        <select id="tone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="casual">Casual</option>
+                            <option value="professional">Professional</option>
+                            <option value="viral">Viral</option>
+                            <option value="motivational">Motivational</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                        <input type="text" id="audience" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                               placeholder="e.g., Marketing professionals">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Content Goal</label>
+                        <select id="goal" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="awareness">Awareness</option>
+                            <option value="engagement">Engagement</option>
+                            <option value="conversion">Conversion</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" id="generateBtn"
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition">
+                    <i class="ri-magic-line mr-2"></i> Generate Content
+                </button>
+            </form>
+        </div>
+
+        <!-- Generated Content Display -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover transition">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="ri-file-copy-line text-purple-600 mr-2"></i>
+                Generated Content
+            </h2>
+            
+            <div id="generatedContent" class="space-y-4">
+                <div class="text-gray-400 text-center py-8">
+                    <i class="ri-lightbulb-line text-4xl mb-2 block"></i>
+                    <p>Fill out the form and generate your first post!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Ideas Section -->
+    <div class="mt-8 bg-white rounded-xl shadow-md p-6 card-hover transition">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="ri-lightbulb-flash-line text-purple-600 mr-2"></i>
+            Content Ideas Generator
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2">
+                <input type="text" id="ideaNiche" placeholder="Enter your niche (e.g., Technology, Marketing, Fitness)"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+            </div>
+            <div>
+                <button onclick="generateIdeas()" id="ideasBtn"
+                        class="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition">
+                    <i class="ri-lightbulb-flash-line mr-2"></i> Generate 10 Ideas
+                </button>
+            </div>
+        </div>
+        
+        <div id="ideasList" class="mt-6 space-y-2">
+            <!-- Ideas will appear here -->
+        </div>
+    </div>
+
+    <!-- Upcoming Posts Preview -->
+    <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="ri-calendar-line text-purple-600 mr-2"></i>
+            Upcoming Scheduled Posts
+        </h2>
+        
+        {% if upcoming_posts %}
+        <div class="space-y-3">
+            {% for post in upcoming_posts[:3] %}
+            <div class="border-l-4 border-purple-500 bg-purple-50 p-3 rounded">
+                <p class="text-sm text-gray-600">{{ post.content[:100] }}...</p>
+                <p class="text-xs text-gray-400 mt-1">
+                    <i class="ri-time-line"></i> {{ post.scheduled_time }} | 
+                    <i class="ri-{{ 'twitter' if post.platform == 'twitter' else 'linkedin' if post.platform == 'linkedin' else 'instagram' }}-line"></i> {{ post.platform }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-400 text-center py-4">No upcoming posts. Create your first schedule!</p>
+        {% endif %}
+        
+        <div class="mt-4 text-center">
+            <a href="/schedule" class="text-purple-600 hover:text-purple-700 text-sm">View all schedules →</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Generate content
+document.getElementById('generateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const generateBtn = document.getElementById('generateBtn');
+    const originalText = generateBtn.innerHTML;
+    showLoading('generateBtn', 'Generating...');
+    
+    const data = {
+        topic: document.getElementById('topic').value,
+        platform: document.getElementById('platform').value,
+        tone: document.getElementById('tone').value,
+        audience: document.getElementById('audience').value || 'general',
+        goal: document.getElementById('goal').value
+    };
+    
+    try {
+        const response = await fetch('/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            displayGeneratedContent(result.post, result.caption);
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error generating content: ' + error.message);
+    } finally {
+        hideLoading('generateBtn', originalText);
+    }
+});
+
+function displayGeneratedContent(post, caption) {
+    const container = document.getElementById('generatedContent');
+    container.innerHTML = `
+        <div class="space-y-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-semibold text-purple-600 uppercase">Post Content</span>
+                    <button onclick="copyToClipboard('${post.content.replace(/'/g, "\\'")}')" 
+                            class="text-gray-400 hover:text-purple-600">
+                        <i class="ri-file-copy-line"></i>
+                    </button>
+                </div>
+                <p class="text-gray-800 whitespace-pre-wrap">${post.content}</p>
+                <div class="mt-2 text-xs text-gray-500">
+                    <span>📊 ${post.character_count} characters</span>
+                    <span class="ml-3">🎯 ${post.tone} tone</span>
+                    ${post.is_mock ? '<span class="ml-3 text-yellow-600">⚠️ Mock Mode (No API key)</span>' : ''}
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-semibold text-purple-600 uppercase">Optimized Caption</span>
+                    <button onclick="copyToClipboard('${caption.replace(/'/g, "\\'")}')" 
+                            class="text-gray-400 hover:text-purple-600">
+                        <i class="ri-file-copy-line"></i>
+                    </button>
+                </div>
+                <p class="text-gray-800 whitespace-pre-wrap">${caption}</p>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <span class="text-xs font-semibold text-purple-600 uppercase block mb-2">Hashtags</span>
+                <div class="flex flex-wrap gap-2">
+                    ${post.hashtags.split(' ').map(tag => 
+                        `<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">${tag}</span>`
+                    ).join('')}
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="scheduleThisPost()" 
+                        class="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
+                    <i class="ri-calendar-line mr-1"></i> Schedule
+                </button>
+                <button onclick="copyToClipboard('${post.content.replace(/'/g, "\\'")}')" 
+                        class="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition">
+                    <i class="ri-clipboard-line mr-1"></i> Copy Post
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+async function generateIdeas() {
+    const niche = document.getElementById('ideaNiche').value;
+    if (!niche) {
+        alert('Please enter a niche');
+        return;
+    }
+    
+    const ideasBtn = document.getElementById('ideasBtn');
+    const originalText = ideasBtn.innerHTML;
+    ideasBtn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i> Generating...';
+    ideasBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/ideas', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({niche: niche, count: 10})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const ideasList = document.getElementById('ideasList');
+            ideasList.innerHTML = `
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-3">💡 10 Viral Content Ideas for ${result.niche}</h3>
+                    <div class="space-y-2">
+                        ${result.ideas.map((idea, index) => `
+                            <div class="flex items-start space-x-2">
+                                <span class="text-purple-600 font-bold">${index + 1}.</span>
+                                <span class="text-gray-700">${idea}</span>
+                                <button onclick="copyToClipboard('${idea.replace(/'/g, "\\'")}')" 
+                                        class="ml-auto text-gray-400 hover:text-purple-600">
+                                    <i class="ri-file-copy-line"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    } finally {
+        ideasBtn.innerHTML = originalText;
+        ideasBtn.disabled = false;
+    }
+}
+
+function scheduleThisPost() {
+    const content = document.querySelector('#generatedContent p')?.innerText;
+    if (content) {
+        window.location.href = '/schedule';
+        // Store in session to pre-fill
+        sessionStorage.setItem('scheduledContent', content);
+    }
+}
+</script>
+{% endblock %}

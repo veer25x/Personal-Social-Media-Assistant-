@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Reply Generator{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Smart Reply Generator</h1>
+    <p class="text-gray-600 mb-8">Generate AI-powered replies to comments and messages</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Reply Generation Form -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="ri-chat-smile-line text-purple-600 mr-2"></i>
+                Generate Reply
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Tone</label>
+                    <select id="replyTone" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="friendly">Friendly 😊</option>
+                        <option value="witty">Witty 😎</option>
+                        <option value="professional">Professional 💼</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Comment / Message</label>
+                    <textarea id="singleComment" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              placeholder="Enter the comment you want to reply to..."></textarea>
+                </div>
+                
+                <button onclick="generateSingleReply()" id="singleReplyBtn"
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2 rounded-lg hover:opacity-90 transition">
+                    <i class="ri-magic-line mr-2"></i> Generate Reply
+                </button>
+                
+                <div id="singleReplyResult" class="mt-4 hidden">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-semibold text-green-600 uppercase">Generated Reply</span>
+                            <button onclick="copyToClipboard(document.getElementById('replyText').innerText)" 
+                                    class="text-gray-400 hover:text-green-600">
+                                <i class="ri-file-copy-line"></i>
+                            </button>
+                        </div>
+                        <p id="replyText" class="text-gray-800"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Reply Generator -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="ri-group-line text-purple-600 mr-2"></i>
+                Bulk Reply Generator
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Multiple Comments (one per line)</label>
+                    <textarea id="bulkComments" rows="6" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
+                              placeholder="Great post!&#10;How did you learn this?&#10;I completely agree with you..."></textarea>
+                </div>
+                
+                <button onclick="generateBulkReplies()" id="bulkReplyBtn"
+                        class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-2 rounded-lg hover:opacity-90 transition">
+                    <i class="ri-stack-line mr-2"></i> Generate All Replies
+                </button>
+                
+                <div id="bulkReplyResult" class="mt-4 hidden">
+                    <div class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- Bulk replies will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reply Templates Gallery -->
+    <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="ri-template-line text-purple-600 mr-2"></i>
+            Reply Templates by Tone
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="border rounded-lg p-4">
+                <h3 class="font-semibold text-gray-800 mb-2">😊 Friendly Tone</h3>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <p>"Thank you so much! Really appreciate your support!"</p>
+                    <p>"Thanks for sharing your perspective! 😊"</p>
+                    <p>"Great question! Here's what I think... 💭"</p>
+                </div>
+            </div>
+            
+            <div class="border rounded-lg p-4">
+                <h3 class="font-semibold text-gray-800 mb-2">😎 Witty Tone</h3>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <p>"Haha thanks! You're too kind 😎"</p>
+                    <p>"Interesting take! Here's a different angle... 🔄"</p>
+                    <p>"Plot twist: I actually have an answer for this! 🎬"</p>
+                </div>
+            </div>
+            
+            <div class="border rounded-lg p-4">
+                <h3 class="font-semibold text-gray-800 mb-2">💼 Professional Tone</h3>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <p>"Thank you for your thoughtful feedback. I appreciate your support."</p>
+                    <p>"Thank you for sharing your perspective. It's valuable to consider different viewpoints."</p>
+                    <p>"Thank you for your question. Allow me to provide some clarity..."</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6">
+        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+            <i class="ri-lightbulb-line text-yellow-500 mr-2"></i>
+            Pro Tips for Better Engagement
+        </h3>
+        <ul class="space-y-2 text-sm text-gray-700">
+            <li>✓ Always personalize replies with the commenter's name when possible</li>
+            <li>✓ Respond within 24 hours for best engagement rates</li>
+            <li>✓ Use emojis strategically to add personality (but don't overdo it!)</li>
+            <li>✓ Ask follow-up questions to continue the conversation</li>
+            <li>✓ Match your tone to your brand voice and the comment's sentiment</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+async function generateSingleReply() {
+    const comment = document.getElementById('singleComment').value;
+    const tone = document.getElementById('replyTone').value;
+    
+    if (!comment) {
+        alert('Please enter a comment to reply to');
+        return;
+    }
+    
+    const btn = document.getElementById('singleReplyBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i> Generating...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch('/replies', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({comments: comment, tone: tone})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('replyText').innerText = result.reply;
+            document.getElementById('singleReplyResult').classList.remove('hidden');
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error generating reply: ' + error.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function generateBulkReplies() {
+    const commentsText = document.getElementById('bulkComments').value;
+    const comments = commentsText.split('\n').filter(c => c.trim());
+    const tone = document.getElementById('replyTone').value;
+    
+    if (comments.length === 0) {
+        alert('Please enter at least one comment');
+        return;
+    }
+    
+    const btn = document.getElementById('bulkReplyBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i> Generating replies...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch('/replies', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({comments: comments, tone: tone})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const container = document.getElementById('bulkReplyResult');
+            const resultsDiv = container.querySelector('.space-y-3');
+            
+            resultsDiv.innerHTML = result.replies.map((item, index) => `
+                <div class="border rounded-lg p-3 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-2">
+                        <strong>Original Comment ${index + 1}:</strong> "${item.original_comment}"
+                    </div>
+                    <div class="bg-green-50 p-3 rounded">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <span class="text-xs font-semibold text-green-600 uppercase">Reply</span>
+                                <p class="text-gray-800 mt-1">${item.generated_reply}</p>
+                            </div>
+                            <button onclick="copyToClipboard('${item.generated_reply.replace(/'/g, "\\'")}')" 
+                                    class="text-gray-400 hover:text-green-600 ml-2">
+                                <i class="ri-file-copy-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.classList.remove('hidden');
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error generating replies: ' + error.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}
